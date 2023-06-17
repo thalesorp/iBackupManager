@@ -7,31 +7,32 @@ This tool offers a convenient way for iPhone and Windows PC users to organize an
 
 - [ImageMagick](https://github.com/ImageMagick/ImageMagick) command-line tool added to the system's PATH for converting images.
 - [MediaInfo](https://github.com/MediaArea/MediaInfo) command-line tool added to the system's PATH for retrieving video metadata.
-- Developed using PowerShell 7.3.4, I'm uncertain about the minimum version required.
+- Developed using PowerShell 7.3.4, but the minimum version required is uncertain.
 
 
 ## 🚀 Usage
 
 ```powershell
-.\iBackupManager.ps1 [-Path <string>] [-Replace] [-Confirm] [-Verbose]
+.\iBackupManager.ps1 [-Path <string>] [-VerboseLogging] [-MoveLivePhotos] [-Replace] [-Prefix]
 ```
 
 
 ## 🔑 Parameters
 
 - `-Path <string>` (optional): Specifies the path to the directory containing the images to convert. If not provided, the current working directory is used.
-- `-Replace` (optional): If specified, the original files will be replaced with the converted ones.
-- `-Confirm` (optional): By using this parameter, all actions will be performed without further prompts or confirmations.
-- `-Verbose` (optional): Enables verbose output, providing detailed information during the execution of the script.
+- `-VerboseLogging` (optional): Enables verbose logging, displaying step-by-step processing information during execution and storing it in an "ExecutionLog" text file.
+- `-MoveLivePhotos` (optional):  Moves live photos to a subfolder named "Live Photos" if specified.
+- `-Replace` (optional):  Replaces the original files with the converted ones if specified.
+- `-Prefix` (optional): Adds a date and time prefix to each file in the specified directory based on the file's metadata.
 
 
 ## 💡 Detailed Execution
 
-The script locates PNG and HEIC image files within the specified directory and converts them to JPEG format using ImageMagick. The converted files are saved in the JPEG format. If there are multiple files with the same name, a "New" suffix is added to the file name to avoid overwriting existing files.
+The script first moves live photos (if `-MoveLivePhotos` is passed) and then locates PNG and HEIC image files within the specified directory, converting them to JPEG format using ImageMagick. The converted files are saved in JPEG format. If there are multiple files with the same name, a "New" suffix is added to the file name to avoid overwriting existing files.
 
-After the conversion, the script offers an option to delete the original image files. If confirmed, the original files (PNG and HEIC) are permanently deleted from the specified directory.
+After the conversion, the original files are deleted if `-Replace` is present.
 
-The script adds the date as prefix to all files based on their metadata:
+When `-Prefix` is enabled, the script adds the date and time as prefix to all files based on their metadata:
 - For images, the script retrieves the "Date taken" metadata property using `Windows Shell.Application COM object`;
 - For videos, the script uses the MediaInfo command-line tool to extract the "Encoded_Date" metadata property and formats it accordingly.
 The date prefix follows the format `yyyy-MM-dd_HH-mm_`.
@@ -51,9 +52,14 @@ The date prefix follows the format `yyyy-MM-dd_HH-mm_`.
     .\iBackupManager.ps1 -Path "C:\Images" -Replace -Confirm
     ```
 
-3. Convert images in the current directory, showing detailed information about the execution:
+3. Convert images in the current directory, enable CLI verbose logging, and store detailed processing information in a text file:
     ```powershell
-    .\iBackupManager.ps1 -Verbose
+    .\iBackupManager.ps1 -VerboseLogging
+    ```
+
+4. Convert images of the specific directory, organizing live photos by moving them to a subfolder:
+    ```powershell
+    .\Script.ps1 -Path "C:\Images" -MoveLivePhotos
     ```
 
 
