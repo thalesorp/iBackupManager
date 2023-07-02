@@ -3,7 +3,7 @@
 Cmdlet that offers a convenient way for iPhone and Windows PC users to organize and standardize their photo backups.
 
 .DESCRIPTION
-Converts HEIC photos to JPG and inserts the date taken as a prefix in each file name, including MP4 and MOV files.
+Converts HEIC photos to a desired extension and inserts the date taken as a prefix in each file name, including MP4 and MOV files.
 
 .PARAMETER Path
 Specifies the path to the directory containing the images to convert. If not provided, the current working directory is used.
@@ -37,7 +37,7 @@ Convert images in the current directory, showing detailed information about the 
 
 .NOTES
 Author: Thales Pinto
-Version: 0.1.1
+Version: 0.2.0
 Licence: This code is licensed under the MIT license.
 For more information, refer to the README.md file in the repository.
 #>
@@ -63,7 +63,18 @@ param (
     [Switch]$Replace,
 
     [Parameter(HelpMessage = "By using the prefix parameter, the date of the photo and video will be added to the file name.")]
-    [Switch]$Prefix
+    [Switch]$Prefix,
+
+    [Parameter(
+        Mandatory = $true,
+        HelpMessage = "Specifies the extension to which images will be converted, accpeting any extension supported by Magick."
+    )]
+    [ValidateNotNullOrEmpty()]
+    [ValidateScript({
+        if ($(magick identify -list format | Select-String -Pattern $($_ -replace "^\.")) -eq $null) { throw "Invalid extension or Magick can't convert to it." }
+        $true
+    })]
+    [string]$Extension
 )
 
 begin {
@@ -163,13 +174,13 @@ begin {
 
         Write-CustomVerbose "Converting images..."
 
-        $FinalFileNames = $Global:OriginalFiles.FullName | ForEach-Object { [System.IO.Path]::ChangeExtension($_, "jpg") }
+        $FinalFileNames = $Global:OriginalFiles.FullName | ForEach-Object { [System.IO.Path]::ChangeExtension($_, $Global:OutputExtension) }
 
         for ($i = 0; $i -lt $Global:OriginalFiles.Count; $i++) {
 
             # Testing if already have a file with the same name, and if so, append a "New" at the end of the file name.
             if ((Test-Path -Path $FinalFileNames[$i] -PathType Leaf) -eq $true) {
-                $FinalFileNames[$i] = $($FinalFileNames[$i]).Replace(".jpg", " - New.jpg")
+                $FinalFileNames[$i] = $($FinalFileNames[$i]).Replace(".$Global:OutputExtension", " - New.$Global:OutputExtension")
             }
 
             magick $Global:OriginalFiles[$i] $FinalFileNames[$i]
@@ -199,7 +210,7 @@ begin {
     Adds a prefix to each file in the specified path based on the file's metadata.
     #>
     function Add-Prefix {
-        $ImagesFiles = Get-ChildItem -Path $Path -File | Where-Object { $_.Extension -eq ".jpg" }
+        $ImagesFiles = Get-ChildItem -Path $Path -File | Where-Object { $_.Extension -eq ".$Global:OutputExtension" }
         $VideoFiles = Get-ChildItem -Path $Path -File -Recurse | Where-Object { $_.Extension -in ".mp4", ".mov" }
 
         $Counter = 0
@@ -281,6 +292,8 @@ process {
     $Global:DateFormat = "yyyy-MM-dd_HH-mm_"
     $Global:Logging = $false
     $Global:ExecutionLogFile = $null
+
+    $Global:OutputExtension = $Extension -replace "^\."
 
     if ($PSBoundParameters.ContainsKey("VerboseLogging")) {
         $VerbosePreference = "Continue"
