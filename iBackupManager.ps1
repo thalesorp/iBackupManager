@@ -37,7 +37,7 @@ Convert images in the current directory, showing detailed information about the 
 
 .NOTES
 Author: Thales Pinto
-Version: 0.1.0
+Version: 0.1.1
 Licence: This code is licensed under the MIT license.
 For more information, refer to the README.md file in the repository.
 #>
@@ -249,8 +249,6 @@ begin {
 
         $Counter = 0
 
-        Write-CustomVerbose "Moving live photos videos to: `"$DestinationFolder`"..."
-
         $MovFilesToMove = @()
         ForEach ($file in $PossibleMovFileNames) {
             if (Test-Path -Path $file -PathType Leaf){
@@ -259,6 +257,14 @@ begin {
         }
 
         $MaxCounter = $MovFilesToMove.Count
+
+        if ($MaxCounter -eq 0) {
+            Write-CustomVerbose "No live photos videos to move."
+            return
+        }
+
+        Write-CustomVerbose "Moving live photos videos to: `"$DestinationFolder`"..."
+
         ForEach ($file in $MovFilesToMove) {
             $Counter += 1
             Move-Item -Path $file -Destination $DestinationFolder
