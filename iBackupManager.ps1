@@ -37,7 +37,7 @@ Convert images in the current directory, showing detailed information about the 
 
 .NOTES
 Author: Thales Pinto
-Version: 0.2.0
+Version: 0.2.1
 Licence: This code is licensed under the MIT license.
 For more information, refer to the README.md file in the repository.
 #>
@@ -61,9 +61,6 @@ param (
 
     [Parameter(HelpMessage = "Replace the original files with the new converted ones.")]
     [Switch]$Replace,
-
-    [Parameter(HelpMessage = "By using the prefix parameter, the date of the photo and video will be added to the file name.")]
-    [Switch]$Prefix,
 
     [Parameter(
         Mandatory = $true,
@@ -210,34 +207,31 @@ begin {
     Adds a prefix to each file in the specified path based on the file's metadata.
     #>
     function Add-Prefix {
-        $ImagesFiles = Get-ChildItem -Path $Path -File | Where-Object { $_.Extension -eq ".$Global:OutputExtension" }
-        $VideoFiles = Get-ChildItem -Path $Path -File -Recurse | Where-Object { $_.Extension -in ".mp4", ".mov" }
+        $files = Get-ChildItem -Path $Path -File | Where-Object { $_.Extension -in ".heic", ".png", ".jpg", ".mp4", ".mov" }
 
         $Counter = 0
-        $MaxCounter = $ImagesFiles.Count + $VideoFiles.Count
 
         Write-CustomVerbose "Adding prefix on each file..."
 
-        ForEach ($Image in $ImagesFiles) {
+        ForEach ($file in $files) {
             $Counter += 1
-            $Prefix = Get-ImageDate $Image.FullName
-            if ($Prefix -eq $null) {
-                Write-CustomVerbose "Renaming file $Counter of $($MaxCounter): `"$($Image.Name)`" NOT RENAMED due to missing date on metadata."
+
+            if (".heic", ".png", ".jpg" -contains $file.Extension) {
+                $prefix = Get-ImageDate $file.FullName
+            }
+            if (".mp4", ".mov" -contains $file.Extension) {
+                $prefix = Get-VideoDate $file.FullName
+            }
+
+            if ($prefix -eq $null) {
+                Write-CustomVerbose "Renaming file $Counter of $($files.Count): `"$($file.Name)`" NOT RENAMED due to missing date on metadata."
                 continue
             }
-            $NewName = $Prefix + $Image.Name
-            $NewFullName = Join-Path $Image.Directory $NewName
-            Rename-Item $Image.FullName $NewFullName
-            Write-CustomVerbose "Renaming file $Counter of $($MaxCounter): `"$NewName`"."
-        }
 
-        ForEach ($Video in $VideoFiles) {
-            $Counter += 1
-            $Prefix = Get-VideoDate $Video.FullName
-            $NewName = $Prefix + $Video.Name
-            $NewFullName = Join-Path $Video.Directory $($Prefix + $Video.Name)
-            Rename-Item $Video.FullName $NewFullName
-            Write-CustomVerbose "Renaming file $Counter of $($MaxCounter): `"$NewName`"."
+            $newName = $prefix + $file.Name
+            $newFullName = Join-Path $file.Directory $newName
+            Rename-Item $file.FullName $newFullName
+            Write-CustomVerbose "Renaming file $Counter of $($files.Count): `"$newName`"."
         }
 
         Write-CustomVerbose "Added prefixes."
@@ -252,35 +246,18 @@ begin {
             [string]$DestinationFolder
         )
 
-        $AllFiles = Get-ChildItem -Path $Path -File | Where-Object { $_.Extension -in ".png", ".heic" }
-        if ($AllFiles.Count -eq 0) {
-            return
-        }
-        $PossibleMovFileNames = $AllFiles.FullName | ForEach-Object { [System.IO.Path]::ChangeExtension($_, "mov") }
-
-        $Counter = 0
-
-        $MovFilesToMove = @()
-        ForEach ($file in $PossibleMovFileNames) {
-            if (Test-Path -Path $file -PathType Leaf){
-                $MovFilesToMove += $file
-            }
-        }
-
-        $MaxCounter = $MovFilesToMove.Count
-
-        if ($MaxCounter -eq 0) {
+        $files = Get-ChildItem -Path $Path -File | Where-Object { $_.Extension -eq ".mov" }
+        if ($files.Count -eq 0) {
             Write-CustomVerbose "No live photos videos to move."
             return
         }
 
         Write-CustomVerbose "Moving live photos videos to: `"$DestinationFolder`"..."
 
-        ForEach ($file in $MovFilesToMove) {
+        ForEach ($file in $files) {
             $Counter += 1
             Move-Item -Path $file -Destination $DestinationFolder
-            $FileName = Split-Path -Leaf $file
-            Write-CustomVerbose "Moving file $Counter of $($MaxCounter): `"$FileName`"."
+            Write-CustomVerbose "Moving file $Counter of $($files.Count): `"$(Split-Path -Leaf $file)`"."
         }
 
         Write-CustomVerbose "Live photos moved."
@@ -303,6 +280,8 @@ process {
         New-Item $Global:ExecutionLogFile -Value "iBackupManager`n$ExecutionLogFileName`n" | Out-Null
     }
 
+    Add-Prefix
+
     if ($PSBoundParameters.ContainsKey("MoveLivePhotos")) {
         $LivePhotosFolder = Join-Path $Path "Live Photos"
         if (-Not (Test-Path -Path $LivePhotosFolder -PathType Container)) {
@@ -317,8 +296,5 @@ process {
         Remove-OriginalFiles
     }
 
-    if ($PSBoundParameters.ContainsKey("Prefix")) {
-        Add-Prefix
-    }
 
 }
