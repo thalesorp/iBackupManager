@@ -24,16 +24,16 @@ Accepts input from the pipeline.
 None.
 
 .EXAMPLE
-Convert images in the current directory and prompt for confirmation at each step:
-.\iBackupManager.ps1
+Convert images in the current directory to JPG and prompt for confirmation at each step:
+.\iBackupManager.ps1 -Extension "jpg"
 
 .EXAMPLE
 Convert images in a specific directory, replace original files, and confirm all actions:
-.\iBackupManager.ps1 -Path "C:\Images" -Replace -Confirm
+.\iBackupManager.ps1 -Path "C:\Images" -Extension "jpg" -Replace -Confirm
 
 .EXAMPLE
 Convert images in the current directory, showing detailed information about the execution:
-.\iBackupManager.ps1 -Verbose
+.\iBackupManager.ps1  -Extension "jpg" -Verbose
 
 .NOTES
 Author: Thales Pinto
