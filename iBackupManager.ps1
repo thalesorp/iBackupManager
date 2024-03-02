@@ -28,12 +28,12 @@ Convert images in the current directory to JPG and prompt for confirmation at ea
 .\iBackupManager.ps1 -Extension "jpg"
 
 .EXAMPLE
-Convert images in a specific directory, replace original files, and confirm all actions:
-.\iBackupManager.ps1 -Path "C:\Images" -Extension "jpg" -Replace -Confirm
+Convert images in a specific directory, replace original files:
+.\iBackupManager.ps1 -Path "C:\Images" -Extension "jpg" -Replace
 
 .EXAMPLE
-Convert images in the current directory, showing detailed information about the execution:
-.\iBackupManager.ps1  -Extension "jpg" -Verbose
+Convert images in the current directory, enable CLI verbose logging, and store detailed processing information in a text file:
+.\iBackupManager.ps1 -Extension "jpg" -VerboseLogging
 
 .NOTES
 Author: Thales Pinto

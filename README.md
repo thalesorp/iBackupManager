@@ -14,15 +14,17 @@ This tool offers a convenient way for iPhone and Windows PC users to organize an
 
 ```powershell
 .\iBackupManager.ps1 [-Path <string>] [-VerboseLogging] [-MoveLivePhotos] [-Replace]
+.\iBackupManager.ps1 [[-Path] <String>] [-Extension] <String> [-Replace] [-MoveLivePhotos] [-VerboseLogging] [<CommonParameters>]
 ```
 
 
 ## 🔑 Parameters
 
 - `-Path <string>` (optional): Specifies the path to the directory containing the images to convert. If not provided, the current working directory is used.
-- `-VerboseLogging` (optional): Enables verbose logging, displaying step-by-step processing information during execution and storing it in an "ExecutionLog" text file.
-- `-MoveLivePhotos` (optional):  Moves live photos to a subfolder named "Live Photos" if specified.
+- `-Extension <string>`: Inform the desired extension. All extensions that ImageMagick accept is allowed. See [ImageMagick repository](https://github.com/ImageMagick/ImageMagick) for more information.
 - `-Replace` (optional):  Replaces the original files with the converted ones if specified.
+- `-MoveLivePhotos` (optional):  Moves live photos to a subfolder named "Live Photos" if specified.
+- `-VerboseLogging` (optional): Enables verbose logging, displaying step-by-step processing information during execution and storing it in an "ExecutionLog" text file.
 
 
 ## 💡 Detailed Execution
@@ -41,24 +43,19 @@ The date prefix follows the format `yyyy-MM-dd_HH-mm_`.
 
 ## 🌟 Examples
 
-1. Convert images in the current directory and prompt for confirmation at each step:
+1. Convert images in the current directory to JPG and prompt for confirmation at each step:
     ```powershell
-    .\iBackupManager.ps1
+    .\iBackupManager.ps1 -Extension "jpg"
     ```
 
-2. Convert images in a specific directory, replace original files, and confirm all actions:
+2. Convert images in a specific directory, replace original files:
     ```powershell
-    .\iBackupManager.ps1 -Path "C:\Images" -Replace -Confirm
+    .\iBackupManager.ps1 -Path "C:\Images" -Extension "jpg" -Replace
     ```
 
 3. Convert images in the current directory, enable CLI verbose logging, and store detailed processing information in a text file:
     ```powershell
-    .\iBackupManager.ps1 -VerboseLogging
-    ```
-
-4. Convert images of the specific directory, organizing live photos by moving them to a subfolder:
-    ```powershell
-    .\Script.ps1 -Path "C:\Images" -MoveLivePhotos
+    .\iBackupManager.ps1 -Extension "jpg" -VerboseLogging
     ```
 
 
