@@ -13,7 +13,7 @@ This tool offers a convenient way for iPhone and Windows PC users to organize an
 ## 🚀 Usage
 
 ```powershell
-.\iBackupManager.ps1 [-Path <string>] [-VerboseLogging] [-MoveLivePhotos] [-Replace] [-Prefix]
+.\iBackupManager.ps1 [-Path <string>] [-VerboseLogging] [-MoveLivePhotos] [-Replace]
 ```
 
 
@@ -23,7 +23,6 @@ This tool offers a convenient way for iPhone and Windows PC users to organize an
 - `-VerboseLogging` (optional): Enables verbose logging, displaying step-by-step processing information during execution and storing it in an "ExecutionLog" text file.
 - `-MoveLivePhotos` (optional):  Moves live photos to a subfolder named "Live Photos" if specified.
 - `-Replace` (optional):  Replaces the original files with the converted ones if specified.
-- `-Prefix` (optional): Adds a date and time prefix to each file in the specified directory based on the file's metadata.
 
 
 ## 💡 Detailed Execution
@@ -32,7 +31,7 @@ The script first moves live photos (if `-MoveLivePhotos` is passed) and then loc
 
 After the conversion, the original files are deleted if `-Replace` is present.
 
-When `-Prefix` is enabled, the script adds the date and time as prefix to all files based on their metadata:
+The script adds the date and time as prefix to all files based on their metadata:
 - For images, the script retrieves the "Date taken" metadata property using `Windows Shell.Application COM object`;
 - For videos, the script uses the MediaInfo command-line tool to extract the "Encoded_Date" metadata property and formats it accordingly.
 The date prefix follows the format `yyyy-MM-dd_HH-mm_`.
