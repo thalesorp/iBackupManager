@@ -53,15 +53,6 @@ param (
     })]
     [string]$Path = $pwd,
 
-    [Parameter(HelpMessage = "Enables verbose logging, capturing step-by-step processing information during script execution.")]
-    [Switch]$VerboseLogging,
-
-    [Parameter(HelpMessage = "Organizes live photos (.mov) by moving them to a subfolder.")]
-    [Switch]$MoveLivePhotos,
-
-    [Parameter(HelpMessage = "Replace the original files with the new converted ones.")]
-    [Switch]$Replace,
-
     [Parameter(
         Mandatory = $true,
         HelpMessage = "Specifies the extension to which images will be converted, accpeting any extension supported by Magick."
@@ -71,7 +62,16 @@ param (
         if ($(magick identify -list format | Select-String -Pattern $($_ -replace "^\.")) -eq $null) { throw "Invalid extension or Magick can't convert to it." }
         $true
     })]
-    [string]$Extension
+    [string]$Extension,
+
+    [Parameter(HelpMessage = "Replace the original files with the new converted ones.")]
+    [Switch]$Replace,
+
+    [Parameter(HelpMessage = "Organizes live photos (.mov) by moving them to a subfolder.")]
+    [Switch]$MoveLivePhotos,
+
+    [Parameter(HelpMessage = "Enables verbose logging, capturing step-by-step processing information during script execution.")]
+    [Switch]$VerboseLogging
 )
 
 begin {
