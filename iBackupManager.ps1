@@ -152,8 +152,9 @@ begin {
         )
 
         $VideoMetadata = $(MediaInfo --Output=JSON $FilePath) | ConvertFrom-Json
-        $DatePrefix = $VideoMetadata.media.track[0].Encoded_Date
-        $DatePrefix = $([DateTime]::ParseExact($DatePrefix, "yyyy-MM-dd HH:mm:ss UTC", $null)).ToString($Global:DateFormat)
+        $UTCTime = [DateTime]::ParseExact($VideoMetadata.media.track[0].Encoded_Date, "yyyy-MM-dd HH:mm:ss UTC", $null)
+        $TimeZone = [System.TimeZoneInfo]::FindSystemTimeZoneById((Get-WmiObject win32_timezone).StandardName)
+        $DatePrefix = [System.TimeZoneInfo]::ConvertTimeFromUtc($UTCTime, $TimeZone).ToString($Global:DateFormat)
         return $DatePrefix
     }
 
